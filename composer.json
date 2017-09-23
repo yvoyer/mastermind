@@ -1,0 +1,33 @@
+{
+    "name": "star/mastermind",
+    "description": "Mastermind game in console",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yannick Voyer",
+            "email": "star.yvoyer@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">5.5",
+        "star/state-machine": "~1.0@dev",
+        "symfony/console": ">2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Star\\Mastermind\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Star\\Mastermind\\": "tests"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}
