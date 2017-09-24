@@ -15,6 +15,7 @@ interface PrintsGame
     /**
      * @param int $currentTurn
      * @param array $hidden
+     * @param MasterMindResult $result
      */
-    public function printEndedGame($currentTurn, array $hidden);
+    public function printEndedGame($currentTurn, array $hidden, MasterMindResult $result);
 }

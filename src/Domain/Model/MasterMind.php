@@ -119,7 +119,7 @@ class MasterMind implements StateContext {
         );
 
         if ($this->isEnded()) {
-            $printer->printEndedGame($this->currentTurn(), $this->hidden);
+            $printer->printEndedGame($this->currentTurn(), $this->hidden, $this->lastResult);
         }
     }
 
