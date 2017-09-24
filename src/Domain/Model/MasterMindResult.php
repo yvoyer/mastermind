@@ -59,15 +59,28 @@ final class MasterMindResult {
      * @return string[] List of token
      */
     public function responseTokens() {
-        $response = array_fill(0, count($this->hiddenTokens), Token::NULL);
-        foreach ($this->hiddenTokens as $position => $hiddenToken) {
-            if ($this->currentGuess[$position] === $hiddenToken) {
-                $response[$position] = Token::BLACK;
-            } else if (in_array($this->currentGuess[$position], $this->hiddenTokens)) {
-                $response[$position] = Token::WHITE;
+        $attempt = $this->currentGuess;
+        $hidden = $this->hiddenTokens;
+
+        // handle blacks
+        $blackResponse = [];
+        foreach ($hidden as $position => $hiddenToken) {
+            if ($attempt[$position] === $hiddenToken) {
+                $blackResponse[$position] = Token::BLACK;
             }
         }
 
-        return $response;
+        $whiteResponse = [];
+        foreach ($attempt as $position => $guess) {
+            if (isset($blackResponse[$position])) {
+                continue;
+            }
+
+            if (in_array($guess, $hidden)) {
+                $whiteResponse[$guess] = Token::WHITE;
+            }
+        }
+
+        return array_values(array_merge($whiteResponse, $blackResponse));
     }
 }

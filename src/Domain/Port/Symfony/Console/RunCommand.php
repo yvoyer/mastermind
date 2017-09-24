@@ -6,6 +6,7 @@ use Star\Mastermind\Domain\Model\MasterMind;
 use Star\Mastermind\Domain\Model\Token;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -16,6 +17,11 @@ final class RunCommand extends Command
         parent::__construct('run');
     }
 
+    protected function configure()
+    {
+        $this->setDescription('Launch a game');
+    }
+
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -23,13 +29,11 @@ final class RunCommand extends Command
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output) {
-        $game = new MasterMind($tokenNumber = 4, $maxTurns = 12);
+        $game = new MasterMind($tokenNumber = 4, $maxTurns = 10);
         $hidden = array_rand(array_flip(Token::all()), 4);
         $game->start($hidden);
 
         while (true) {
-            $game->printGame(new PrintGameInConsole($output));
-
             /**
              * @var QuestionHelper $helper
              */
@@ -38,6 +42,16 @@ final class RunCommand extends Command
             $tokens = Token::all();
 
             for($i = 0; $i < $tokenNumber; $i++) {
+                $game->printGame(new PrintGameInConsole($output));
+
+                $output->writeln('');
+                $table = new Table($output);
+                $table->setStyle('compact');
+                $table->setHeaders(['Current guess']);
+                $table->addRow([new GuessCell($guess)]);
+                $table->render();
+                $output->writeln('');
+
                 $answer = $helper->ask(
                     $input,
                     $output,

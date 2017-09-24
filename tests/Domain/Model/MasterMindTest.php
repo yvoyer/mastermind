@@ -19,8 +19,14 @@ final class MasterMindTest extends \PHPUnit_Framework_TestCase
      */
     private $invalidGuess;
 
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|PrintsGame
+     */
+    private $printer;
+
     public function setUp()
     {
+        $this->printer = $this->getMockBuilder(PrintsGame::class)->getMock();
         $this->game = new MasterMind(4, 12);
         $this->hidden = [
             Token::RED,
@@ -140,15 +146,7 @@ final class MasterMindTest extends \PHPUnit_Framework_TestCase
                 Token::WHITE,
             ]
         );
-        $this->assertEquals(
-            [
-                Token::NULL,
-                Token::NULL,
-                Token::NULL,
-                Token::NULL,
-            ],
-            $result->responseTokens()
-        );
+        $this->assertEquals([], $result->responseTokens());
     }
 
     public function test_it_should_return_white_token_for_valid_color_at_invalid_position()
@@ -195,7 +193,7 @@ final class MasterMindTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function test_it_should_return_response_tokens_at_position_of_each_guess()
+    public function test_it_should_return_response_tokens_without_saying_the_position()
     {
         $this->game->start($this->hidden);
         $result = $this->game->makeChoices(
@@ -208,10 +206,126 @@ final class MasterMindTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             [
-                Token::BLACK,
-                Token::NULL,
                 Token::WHITE,
-                Token::NULL,
+                Token::BLACK,
+            ],
+            $result->responseTokens()
+        );
+    }
+
+    /**
+     * @group example
+     */
+    public function test_example_a()
+    {
+        $this->game->start(
+            [
+                Token::RED,
+                Token::WHITE,
+                Token::BLUE,
+                Token::GREEN,
+            ]
+        );
+        $result = $this->game->makeChoices(
+            [
+                Token::WHITE,
+                Token::YELLOW,
+                Token::BLUE,
+                Token::BLACK,
+            ]
+        );
+        $this->assertEquals(
+            [
+                Token::WHITE,
+                Token::BLACK,
+            ],
+            $result->responseTokens()
+        );
+    }
+
+    /**
+     * @group example
+     */
+    public function test_example_b()
+    {
+        $this->game->start(
+            [
+                Token::RED,
+                Token::BLUE,
+                Token::GREEN,
+                Token::BLACK,
+            ]
+        );
+        $result = $this->game->makeChoices(
+            [
+                Token::WHITE,
+                Token::YELLOW,
+                Token::GREEN,
+                Token::GREEN,
+            ]
+        );
+        $this->assertEquals(
+            [
+                Token::BLACK,
+            ],
+            $result->responseTokens()
+        );
+    }
+
+    /**
+     * @group example
+     */
+    public function test_example_c()
+    {
+        $this->game->start(
+            [
+                Token::YELLOW,
+                Token::BLUE,
+                Token::YELLOW,
+                Token::BLACK,
+            ]
+        );
+        $result = $this->game->makeChoices(
+            [
+                Token::RED,
+                Token::YELLOW,
+                Token::GREEN,
+                Token::WHITE,
+            ]
+        );
+        $this->assertEquals(
+            [
+                Token::WHITE,
+            ],
+            $result->responseTokens()
+        );
+    }
+
+    /**
+     * @group example
+     */
+    public function test_example_d()
+    {
+        $this->game->start(
+            [
+                Token::RED,
+                Token::BLUE,
+                Token::RED,
+                Token::YELLOW,
+            ]
+        );
+        $result = $this->game->makeChoices(
+            [
+                Token::GREEN,
+                Token::RED,
+                Token::RED,
+                Token::WHITE,
+            ]
+        );
+        $this->assertEquals(
+            [
+                Token::WHITE,
+                Token::BLACK,
             ],
             $result->responseTokens()
         );
@@ -219,26 +333,24 @@ final class MasterMindTest extends \PHPUnit_Framework_TestCase
 
     public function test_it_should_print_active_game_when_started() {
         $this->game->start($this->hidden);
-        $printer = $this->getMockBuilder(PrintsGame::class)->getMock();
-        $printer
+        $this->printer
             ->expects($this->once())
             ->method('printActiveGame');
-        $printer
+        $this->printer
             ->expects($this->never())
             ->method('printEndedGame');
 
-        $this->game->printGame($printer);
+        $this->game->printGame($this->printer);
     }
 
     public function test_it_should_print_ended_game_when_won() {
         $this->game->start($this->hidden);
         $this->game->makeChoices($this->hidden);
 
-        $printer = $this->getMockBuilder(PrintsGame::class)->getMock();
-        $printer
+        $this->printer
             ->expects($this->once())
             ->method('printEndedGame');
-        $this->game->printGame($printer);
+        $this->game->printGame($this->printer);
     }
 
     public function test_it_should_print_ended_game_when_ended() {
@@ -246,10 +358,9 @@ final class MasterMindTest extends \PHPUnit_Framework_TestCase
         $this->game->start($this->hidden);
         $this->game->makeChoices($this->invalidGuess);
 
-        $printer = $this->getMockBuilder(PrintsGame::class)->getMock();
-        $printer
+        $this->printer
             ->expects($this->once())
             ->method('printEndedGame');
-        $this->game->printGame($printer);
+        $this->game->printGame($this->printer);
     }
 }

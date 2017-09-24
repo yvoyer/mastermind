@@ -4,6 +4,9 @@ namespace Star\Mastermind\Domain\Model;
 
 final class Token
 {
+    // Easy Difficulty = 6, with no double allowed
+    // Normal difficulty = 6, with double color
+    // Hard Difficulty = 8, with double colors
     const RED = 'red';
     const BLUE = 'blue';
     const GREEN = 'green';
