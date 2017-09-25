@@ -2,6 +2,7 @@
 
 namespace Star\Mastermind\Domain\Port\Symfony\Console;
 
+use Star\Mastermind\Application\Translation\TranslationRegistry;
 use Star\Mastermind\Domain\Model\MasterMindResult;
 use Star\Mastermind\Domain\Model\PrintsGame;
 use Symfony\Component\Console\Helper\Table;
@@ -16,11 +17,18 @@ final class PrintGameInConsole implements PrintsGame
     private $output;
 
     /**
-     * @param OutputInterface $output
+     * @var TranslationRegistry
      */
-    public function __construct(OutputInterface $output)
+    private $translations;
+
+    /**
+     * @param OutputInterface $output
+     * @param TranslationRegistry $translations
+     */
+    public function __construct(OutputInterface $output, TranslationRegistry $translations)
     {
         $this->output = $output;
+        $this->translations = $translations;
     }
 
     /**
@@ -32,7 +40,13 @@ final class PrintGameInConsole implements PrintsGame
     public function printActiveGame($maxTurn, $tokenNumber, array $guessHistory, array $answers)
     {
         $table = new Table($this->output);
-        $table->setHeaders(['Tour', ' Éssai', 'Réponse']);
+        $table->setHeaders(
+            [
+                $this->translations->get(TranslationRegistry::HEADER_TURN_NUMBER_COLUMN),
+                $this->translations->get(TranslationRegistry::HEADER_GUESS_COLUMN),
+                $this->translations->get(TranslationRegistry::HEADER_ANSWER_COLUMN),
+            ]
+        );
         $cellWidth = $tokenNumber * 2 - 1;
         $table->setColumnWidths([4, $cellWidth, $cellWidth]);
 
@@ -64,19 +78,20 @@ final class PrintGameInConsole implements PrintsGame
 
         if ($result->isWon()) {
             $this->output->writeln(
-                '<info>Félicitation,</info><comment> Vous avez gagné en ' . $currentTurn . ' tours.</comment>'
+                sprintf(
+                    $this->translations->get(TranslationRegistry::END_GAME_VICTORY),
+                    $currentTurn
+                )
             );
         } else {
-            $this->output->writeln(
-                '<info>Vous avez échoué.</info><comment> Recommencez, vous pouvez y arriver.</comment>'
-            );
+            $this->output->writeln($this->translations->get(TranslationRegistry::END_GAME_LOST));
         }
 
         $this->output->writeln('');
 
         $table = new Table($this->output);
         $table->setStyle('compact');
-        $table->setHeaders(['Solution']);
+        $table->setHeaders([$this->translations->get(TranslationRegistry::HEADER_SOLUTION)]);
         $table->addRow([new GuessCell($hidden)]);
         $table->render();
     }
