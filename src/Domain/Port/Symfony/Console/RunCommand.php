@@ -51,7 +51,7 @@ final class RunCommand extends Command
              */
             $helper = $this->getHelper('question');
             $guess = [];
-            $tokens = Token::all();
+            $tokens = Token::allTokens();
 
             for($i = 0; $i < $tokenNumber; $i++) {
                 $game->printGame($printer);
@@ -64,14 +64,17 @@ final class RunCommand extends Command
                 $table->render();
                 $output->writeln('');
 
-                $answer = $helper->ask(
-                    $input,
-                    $output,
-                    new ChoiceQuestion(
-                        sprintf($registry->get(TranslationRegistry::QUESTION_MAIN), $i),
-                        $tokens
-                    )
+                $question = new ChoiceQuestion(
+                    sprintf($registry->get(TranslationRegistry::QUESTION_MAIN), $i),
+                    $tokens
                 );
+                $question->setMultiselect(true);
+                $question->setAutocompleterValues(
+
+                );
+                $answer = $helper->ask($input, $output, $question);
+
+                var_dump($answer);
 
                 // todo Translate colors
                 $guess[$i] = $answer;
