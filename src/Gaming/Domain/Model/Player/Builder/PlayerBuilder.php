@@ -2,8 +2,11 @@
 
 namespace Star\Mastermind\Gaming\Domain\Model\Player\Builder;
 
+use Star\Mastermind\Account\Domain\Model\AccountId;
+use Star\Mastermind\Common\Domain\Model\AppDateTime;
 use Star\Mastermind\Gaming\Domain\Model\Player\PlayerAggregate;
 use Star\Mastermind\Gaming\Domain\Model\Player\PlayerId;
+use Star\Mastermind\Gaming\Domain\Model\Player\PlayerName;
 use function uniqid;
 
 final readonly class PlayerBuilder
@@ -21,8 +24,17 @@ final readonly class PlayerBuilder
     public static function newPlayer(
         PlayerId $id,
         string $name,
+        ?AppDateTime $registeredAt = null,
+        ?AccountId $accountId = null,
     ): self {
-        return new self(new PlayerAggregate($id, $name));
+        return new self(
+            PlayerAggregate::registeredPlayer(
+                $id,
+                PlayerName::fromString($name),
+                $registeredAt ?? AppDateTime::fromNow(),
+                $accountId ?? AccountId::randomUUID(),
+            ),
+        );
     }
 
     public static function newRandomPlayer(): self

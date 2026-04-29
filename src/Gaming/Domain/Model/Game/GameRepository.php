@@ -4,5 +4,5 @@ namespace Star\Mastermind\Gaming\Domain\Model\Game;
 
 interface GameRepository
 {
-
+    public function saveGame(GameAggregate $game): void;
 }
