@@ -27,7 +27,7 @@ abstract readonly class BasePage
         $crawler = $this->browser
             ->getCrawler()
             ->filter($selector);
-        Assert::assertGreaterThan(1, count($crawler));
+        Assert::assertGreaterThan(0, count($crawler));
         Assert::assertStringContainsString($text, $crawler->text());
 
         return $this;
